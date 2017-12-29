@@ -1,6 +1,6 @@
 {
   "name": "aes-cbc-async",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A excersize to create a simple encrypter with `aes-js` and `scrypt`",
   "main": "aes-cbc.js",
   "scripts": {
