@@ -1,0 +1,26 @@
+{
+  "name": "cbc-aes-implementation",
+  "version": "1.0.0",
+  "description": "A excersize to create a simple encrypter with `aes-js` and `scrypt`",
+  "main": "aes-cbc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isaaguilar/cbc-aes-implementation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isaaguilar/cbc-aes-implementation/issues"
+  },
+  "homepage": "https://github.com/isaaguilar/cbc-aes-implementation#readme",
+  "dependencies": {
+    "aes-js": "3.1.0",
+    "base-64": "0.1.0",
+    "scrypt": "6.0.3",
+    "scrypt-js": "2.0.3"
+  }
+}
