@@ -14,7 +14,7 @@ var cbcDecrypt = function(key, iv, encryptedHex, callback) {
   var encryptedBytes = aesjs.utils.hex.toBytes(encryptedHex)
   var aesCbc = new aesjs.ModeOfOperation.cbc(key, iv)
   var decryptedBytes = aesCbc.decrypt(encryptedBytes)
-  let decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes)
+  var decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes)
   // Un-pad
   var re = new RegExp(String.fromCharCode(15), "g")
   decryptedText = decryptedText.replace(re, "")
@@ -43,7 +43,7 @@ var getKey = function(password, salt, callback) {
   var p = 1
   var dkLen = 32
 
-  let encryptedHex = ""
+  var encryptedHex = ""
   scrypt(passBuff, saltBuff, N, r, p, dkLen, function(error, progress, key) {
     callback(error, progress, key, saltString)
   })
@@ -63,7 +63,7 @@ var getIv = function(callback) {
   var p = 1
   var dkLen = 16
 
-  let encryptedHex = ""
+  var encryptedHex = ""
   scrypt(saltBuff1, saltBuff2, N, r, p, dkLen, function(error, progress, key) {
     callback(error, progress, key)
   })
