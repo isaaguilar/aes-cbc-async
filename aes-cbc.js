@@ -1,47 +1,47 @@
-const aesjs = require("aes-js")
-const scrypt = require("scrypt-js")
-const base64 = require("base-64")
+var aesjs = require("aes-js")
+var scrypt = require("scrypt-js")
+var base64 = require("base-64")
 
-const cbcEncrypt = (key, iv, text, callback) => {
-  const textBytes = aesjs.utils.utf8.toBytes(text)
-  const aesCbc = new aesjs.ModeOfOperation.cbc(key, iv)
-  const encryptedBytes = aesCbc.encrypt(textBytes)
-  const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes)
+var cbcEncrypt = function(key, iv, text, callback) {
+  var textBytes = aesjs.utils.utf8.toBytes(text)
+  var aesCbc = new aesjs.ModeOfOperation.cbc(key, iv)
+  var encryptedBytes = aesCbc.encrypt(textBytes)
+  var encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes)
   callback(encryptedHex, iv)
 }
 
-const cbcDecrypt = (key, iv, encryptedHex, callback) => {
-  const encryptedBytes = aesjs.utils.hex.toBytes(encryptedHex)
-  const aesCbc = new aesjs.ModeOfOperation.cbc(key, iv)
-  const decryptedBytes = aesCbc.decrypt(encryptedBytes)
+var cbcDecrypt = function(key, iv, encryptedHex, callback) {
+  var encryptedBytes = aesjs.utils.hex.toBytes(encryptedHex)
+  var aesCbc = new aesjs.ModeOfOperation.cbc(key, iv)
+  var decryptedBytes = aesCbc.decrypt(encryptedBytes)
   let decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes)
   // Un-pad
-  const re = new RegExp(String.fromCharCode(15), "g")
+  var re = new RegExp(String.fromCharCode(15), "g")
   decryptedText = decryptedText.replace(re, "")
   callback(decryptedText)
 }
 
-const padding16 = s => {
+var padding16 = function(s) {
   padAmount = 16 - s.length % 16
-  Array.apply(null, Array(padAmount)).map(() => {
+  Array.apply(null, Array(padAmount)).map(function() {
     s += String.fromCharCode(15)
   })
   return s
 }
 
-const getKey = (password, salt, callback) => {
+var getKey = function(password, salt, callback) {
   // passkey max 64 characters long
-  const bytes = aesjs.utils.utf8.toBytes(password)
-  const passBuff = new Buffer(bytes)
+  var bytes = aesjs.utils.utf8.toBytes(password)
+  var passBuff = new Buffer(bytes)
 
-  const saltString = salt ? salt : Math.random().toString(36).substring(2)
-  const saltBytes = aesjs.utils.utf8.toBytes(saltString)
-  const saltBuff = new Buffer(saltBytes)
+  var saltString = salt ? salt : Math.random().toString(36).substring(2)
+  var saltBytes = aesjs.utils.utf8.toBytes(saltString)
+  var saltBuff = new Buffer(saltBytes)
 
-  const N = 1024
-  const r = 8
-  const p = 1
-  const dkLen = 32
+  var N = 1024
+  var r = 8
+  var p = 1
+  var dkLen = 32
 
   let encryptedHex = ""
   scrypt(passBuff, saltBuff, N, r, p, dkLen, function(error, progress, key) {
@@ -49,19 +49,19 @@ const getKey = (password, salt, callback) => {
   })
 }
 
-const getIv = callback => {
-  const saltString1 = Math.random().toString(36).substring(2)
-  const saltBytes1 = aesjs.utils.utf8.toBytes(saltString1)
-  const saltBuff1 = new Buffer(saltBytes1)
+var getIv = function(callback) {
+  var saltString1 = Math.random().toString(36).substring(2)
+  var saltBytes1 = aesjs.utils.utf8.toBytes(saltString1)
+  var saltBuff1 = new Buffer(saltBytes1)
 
-  const saltString2 = Math.random().toString(36).substring(2)
-  const saltBytes2 = aesjs.utils.utf8.toBytes(saltString2)
-  const saltBuff2 = new Buffer(saltBytes2)
+  var saltString2 = Math.random().toString(36).substring(2)
+  var saltBytes2 = aesjs.utils.utf8.toBytes(saltString2)
+  var saltBuff2 = new Buffer(saltBytes2)
 
-  const N = 1024
-  const r = 8
-  const p = 1
-  const dkLen = 16
+  var N = 1024
+  var r = 8
+  var p = 1
+  var dkLen = 16
 
   let encryptedHex = ""
   scrypt(saltBuff1, saltBuff2, N, r, p, dkLen, function(error, progress, key) {
@@ -69,15 +69,15 @@ const getIv = callback => {
   })
 }
 
-const encrypt = (password, text, callback) => {
+var encrypt = function(password, text, callback) {
   text = padding16(text)
-  getKey(password, null, (error, progress, key, salt) => {
+  getKey(password, null, function(error, progress, key, salt) {
     if (key) {
-      getIv((error, progress, iv) => {
+      getIv(function(error, progress, iv) {
         if (iv) {
-          cbcEncrypt(key, iv, text, (hex, iv) => {
-            const ivHex = aesjs.utils.hex.fromBytes(iv)
-            const encryptedHexWithSalt = salt + "+" + ivHex + ":" + hex
+          cbcEncrypt(key, iv, text, function(hex, iv) {
+            var ivHex = aesjs.utils.hex.fromBytes(iv)
+            var encryptedHexWithSalt = salt + "+" + ivHex + ":" + hex
             // encode as base64
             callback(base64.encode(encryptedHexWithSalt))
           })
@@ -87,18 +87,18 @@ const encrypt = (password, text, callback) => {
   })
 }
 
-const decrypt = (password, encodedSaltedHex, callback) => {
-  const saltedHex = base64.decode(encodedSaltedHex)
-  const hex = saltedHex.split(":")
-  const saltiv = hex[0]
+var decrypt = function(password, encodedSaltedHex, callback) {
+  var saltedHex = base64.decode(encodedSaltedHex)
+  var hex = saltedHex.split(":")
+  var saltiv = hex[0]
 
-  const encryptedHex = hex[1]
-  const salt = saltiv.split("+")[0]
-  const iv = aesjs.utils.hex.toBytes(saltiv.split("+")[1])
+  var encryptedHex = hex[1]
+  var salt = saltiv.split("+")[0]
+  var iv = aesjs.utils.hex.toBytes(saltiv.split("+")[1])
 
-  getKey(password, salt, (error, progress, key) => {
+  getKey(password, salt, function(error, progress, key) {
     if (key) {
-      cbcDecrypt(key, iv, encryptedHex, (decryptedText) => {
+      cbcDecrypt(key, iv, encryptedHex, function(decryptedText) {
         callback(decryptedText)
       })
     }

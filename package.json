@@ -20,6 +20,7 @@
   "dependencies": {
     "aes-js": "3.1.0",
     "base-64": "0.1.0",
+    "padding-js": "git+https://github.com/isaaguilar/padding-js.git",
     "scrypt": "6.0.3",
     "scrypt-js": "2.0.3"
   }
