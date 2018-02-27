@@ -6,7 +6,7 @@
 ## Installation
 
 ```
-npm install
+npm install git+https://github.com/isaaguilar/aes-cbc-async.git
 ```
  
 ## Usage
@@ -14,7 +14,7 @@ npm install
 - *require*
 
  ```
-const cbc = require("./aes-cbc")  
+const cbc = require("aes-cbc-async")  
 ```
 
 - *encrypt a string*
@@ -34,7 +34,7 @@ cbc.decrypt(password, encryptedText, function(plaintext){})
 ## Example
 
 ```
-var cbc = require("./aes-cbc")  
+const cbc = require("aes-cbc-async")  
 
 const plaintext = "Encrypt this phrase"
 const password = "my secret! phrase"
