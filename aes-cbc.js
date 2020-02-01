@@ -1,5 +1,5 @@
 var aesjs = require("aes-js")
-var scrypt = require("scrypt-js")
+var crypto = require("crypto")
 var base64 = require("base-64")
 
 var cbcEncrypt = function(key, iv, text, callback) {
@@ -38,14 +38,11 @@ var getKey = function(password, salt, callback) {
   var saltBytes = aesjs.utils.utf8.toBytes(saltString)
   var saltBuff = new Buffer(saltBytes)
 
-  var N = 1024
-  var r = 8
-  var p = 1
   var dkLen = 32
 
   var encryptedHex = ""
-  scrypt(passBuff, saltBuff, N, r, p, dkLen, function(error, progress, key) {
-    callback(error, progress, key, saltString)
+  crypto.scrypt(passBuff, saltBuff, dkLen, function(error, key) {
+    callback(error, key, saltString)
   })
 }
 
@@ -58,22 +55,19 @@ var getIv = function(callback) {
   var saltBytes2 = aesjs.utils.utf8.toBytes(saltString2)
   var saltBuff2 = new Buffer(saltBytes2)
 
-  var N = 1024
-  var r = 8
-  var p = 1
   var dkLen = 16
 
   var encryptedHex = ""
-  scrypt(saltBuff1, saltBuff2, N, r, p, dkLen, function(error, progress, key) {
-    callback(error, progress, key)
+  crypto.scrypt(saltBuff1, saltBuff2, dkLen, function(error, key) {
+    callback(error, key)
   })
 }
 
 var encrypt = function(password, text, callback) {
   text = padding16(text)
-  getKey(password, null, function(error, progress, key, salt) {
+  getKey(password, null, function(error, key, salt) {
     if (key) {
-      getIv(function(error, progress, iv) {
+      getIv(function(error, iv) {
         if (iv) {
           cbcEncrypt(key, iv, text, function(hex, iv) {
             var ivHex = aesjs.utils.hex.fromBytes(iv)
@@ -96,7 +90,7 @@ var decrypt = function(password, encodedSaltedHex, callback) {
   var salt = saltiv.split("+")[0]
   var iv = aesjs.utils.hex.toBytes(saltiv.split("+")[1])
 
-  getKey(password, salt, function(error, progress, key) {
+  getKey(password, salt, function(error, key) {
     if (key) {
       cbcDecrypt(key, iv, encryptedHex, function(decryptedText) {
         callback(decryptedText)
